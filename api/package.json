@@ -1,0 +1,19 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "Backend for URL Shortner",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx tsx watch index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/mysql": "^5.0.2",
+    "dotenv": "^17.3.1",
+    "fastify": "^5.8.2",
+    "mysql2": "^3.20.0",
+    "tsx": "^4.21.0"
+  }
+}
