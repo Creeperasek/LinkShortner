@@ -15,15 +15,37 @@ fastify.get("/status", async (request, reply) => {
   return rows;
 });
 
-fastify.get("/", function (request, reply) {
-  reply.send({ hello: "world" });
-});
-
-fastify.post("/create-link", async function (request, reply) {
+// Endpoint to create a new shortened link + custom slug TODO: make it more eazy to read
+fastify.post("/create-link/:custom-slug?", async function (request, reply) {
   const { url } = request.body as { url: string };
+  const { customSlug } = request.params as { customSlug?: string };
 
   if (!url) {
     return reply.status(400).send({ error: "URL is required" });
+  }
+
+  if (customSlug) {
+    // Check if the custom slug already exists
+    const [existingRows] = await fastify.mysql.query(
+      "SELECT slug FROM links WHERE slug = ?",
+      [customSlug],
+    );
+
+    if (existingRows.length > 0) {
+      return reply.status(400).send({ error: "Custom slug already exists" });
+    }
+
+    try {
+      await fastify.mysql.query(
+        "INSERT INTO links (original_url, slug) VALUES (?, ?)",
+        [url, customSlug],
+      );
+
+      return { original_url: url, slug: customSlug };
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.status(500).send({ error: "Database insertion failed" });
+    }
   }
 
   const slug = Math.random().toString(36).substring(2, 8);
@@ -41,6 +63,7 @@ fastify.post("/create-link", async function (request, reply) {
   }
 });
 
+// Endpoint to send the original URL based on the shortened link
 fastify.get("/:slug", async function (request, reply) {
   const { slug } = request.params as { slug: string };
 
