@@ -10,10 +10,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.2.0",
+    "@fastify/jwt": "^10.0.0",
     "@fastify/mysql": "^5.0.2",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
-    "fastify": "^5.8.2",
-    "mysql2": "^3.20.0",
-    "tsx": "^4.21.0"
+    "fastify": "^5.8.4",
+    "fastify-plugin": "^5.1.0",
+    "mysql2": "^3.20.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
   }
 }
