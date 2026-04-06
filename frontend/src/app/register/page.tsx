@@ -24,7 +24,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch('/api/register', { // Assuming a /api/register endpoint
+      const response = await fetch('/register', { // Assuming a /register endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
