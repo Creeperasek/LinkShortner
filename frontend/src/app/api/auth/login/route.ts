@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import { createSession } from "@/src/lib/auth";
+import { encrypt } from "../../../../lib/session";
 
-const API_URL = process.env.API_URL || "http://localhost:3000";
+const API_URL = process.env.API_URL || "http://localhost:8080";
+
+export async function GET() {
+  return NextResponse.json({ message: "Login API is working" });
+}
 
 export async function POST(request: Request) {
   try {
@@ -25,21 +29,29 @@ export async function POST(request: Request) {
       );
     }
 
-    // data.user should have id and email
-    await createSession(data.user.id.toString());
-
-    // Extract the token cookie from the backend response
-    const setCookieHeader = response.headers.get("set-cookie");
-
     const nextResponse = NextResponse.json({
       message: "Login successful",
       user: data.user,
     });
 
-    if (setCookieHeader) {
-      // Pass the backend token cookie along to the browser
-      // Fastify sets "token=...; HttpOnly; ..."
-      nextResponse.headers.set("set-cookie", setCookieHeader);
+    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const session = await encrypt({ userId: data.user.id.toString(), expires });
+    nextResponse.cookies.set("session", session, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      expires,
+    });
+
+    if (data.token) {
+      nextResponse.cookies.set("token", data.token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
     }
 
     return nextResponse;

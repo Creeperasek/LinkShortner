@@ -123,7 +123,7 @@ export default function UserDashboard() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("/logout", { method: "POST" });
+      const response = await fetch("/api/auth/logout", { method: "POST" });
       if (response.ok) {
         window.location.href = "/login";
       }
@@ -133,7 +133,7 @@ export default function UserDashboard() {
   };
 
   const copyToClipboard = (slug: string) => {
-    const shortUrl = `${window.location.origin}/r/${slug}`;
+    const shortUrl = `${window.location.origin}/${slug}`;
     navigator.clipboard.writeText(shortUrl);
     setSuccess("Short URL copied to clipboard!");
     setTimeout(() => setSuccess(""), 3000);
@@ -141,7 +141,12 @@ export default function UserDashboard() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
         <Typography variant="h4" component="h1">
           User Dashboard
         </Typography>

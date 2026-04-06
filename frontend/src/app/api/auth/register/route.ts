@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-const API_URL = process.env.API_URL || "http://localhost:3000";
+const API_URL = process.env.API_URL || "http://localhost:8080";
+
+export async function GET() {
+  return NextResponse.json({ message: "Register API is working" });
+}
 
 export async function POST(request: Request) {
   try {

@@ -1,6 +1,7 @@
-import { redirect } from 'next/navigation';
+import RedirectTimer from "@/src/components/redirectTimer";
+import { redirect } from "next/navigation";
 
-const API_URL = process.env.API_URL || 'http://localhost:3000';
+const API_URL = process.env.BASE_URL || "http://localhost:8080";
 
 export default async function SlugPage({
   params,
@@ -9,6 +10,15 @@ export default async function SlugPage({
 }) {
   const { slug } = await params;
 
-  // Redirect to the backend redirection endpoint
-  redirect(`${API_URL}/r/${slug}`);
+  return (
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
+      <h1>Redirecting...</h1>
+      <p>
+        You are being redirected to the original URL. If you are not redirected
+        automatically, click the link below:
+      </p>
+      <RedirectTimer url={`${API_URL}/r/${slug}`} />
+      <a href={`${API_URL}/r/${slug}`}>Go to original URL</a>
+    </div>
+  );
 }
