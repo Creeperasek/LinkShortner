@@ -5,7 +5,7 @@ const API_URL = process.env.API_URL || 'http://localhost:3000';
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;

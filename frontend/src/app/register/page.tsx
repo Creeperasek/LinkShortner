@@ -46,7 +46,7 @@ export default function RegisterPage() {
       } else {
         setError(data.message || 'Registration failed. Please try again.');
       }
-    } catch (err: Error) {
+    } catch (err: any) {
       setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);

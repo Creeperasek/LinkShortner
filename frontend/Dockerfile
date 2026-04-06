@@ -6,9 +6,6 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-# We need to set build-time envs for some things, but since it's a proxy 
-# we mainly need the SESSION_SECRET and API_URL at runtime or build time depending on usage.
-# For simplicity, we'll build it now.
 RUN npm run build
 
 FROM node:22-alpine AS runner

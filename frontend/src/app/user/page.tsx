@@ -172,7 +172,7 @@ export default function UserDashboard() {
         </Typography>
         <Box component="form" onSubmit={handleCreateLink}>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Original URL"
@@ -182,7 +182,7 @@ export default function UserDashboard() {
                 required
               />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <TextField
                 fullWidth
                 label="Custom Slug (optional)"
@@ -191,7 +191,7 @@ export default function UserDashboard() {
                 onChange={(e) => setCustomSlug(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <TextField
                 fullWidth
                 label="Expires At (optional)"
@@ -201,7 +201,7 @@ export default function UserDashboard() {
                 onChange={(e) => setExpiresAt(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Button type="submit" variant="contained" size="large">
                 Shorten URL
               </Button>
