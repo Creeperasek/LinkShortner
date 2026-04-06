@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: linkshortner_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: linkshortner
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+
+  api:
+    build: ./api
+    container_name: linkshortner_api
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      MYSQL_CONNECTION_STRING: mysql://root:root@db:3306/linkshortner
+      JWT_SECRET: supersecret123
+      PORT: 8080                           
+      BASE_URL: http://localhost:8080      
+      NODE_ENV: production
+    ports:
+      - "8080:8080"                        
+
+volumes:
+  db_data:
