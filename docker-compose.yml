@@ -8,7 +8,7 @@ services:
       MYSQL_DATABASE: linkshortner
     volumes:
       - db_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:Z
     ports:
       - "3306:3306"
 
@@ -21,8 +21,8 @@ services:
     environment:
       MYSQL_CONNECTION_STRING: mysql://root:root@db:3306/linkshortner
       JWT_SECRET: supersecret123
-      PORT: 8080                           
-      BASE_URL: http://localhost:8080      
+      PORT: 8080
+      BASE_URL: http://localhost:8080
       NODE_ENV: production
     ports:
       - "8080:8080"
