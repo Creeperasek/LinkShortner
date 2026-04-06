@@ -17,7 +17,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
     const { email, password } = request.body;
 
     if (!email || !password) {
-      return reply.status(400).send({ error: "Email and password are required" });
+      return reply
+        .status(400)
+        .send({ error: "Email and password are required" });
     }
 
     if (!isValidEmail(email)) {
@@ -25,13 +27,15 @@ export default async function authRoutes(fastify: FastifyInstance) {
     }
 
     if (!isValidPassword(password)) {
-      return reply.status(400).send({ error: "Password must be at least 6 characters long" });
+      return reply
+        .status(400)
+        .send({ error: "Password must be at least 6 characters long" });
     }
 
     try {
       const [rows] = await fastify.mysql.query(
         "SELECT id FROM users WHERE email = ?",
-        [email]
+        [email],
       );
 
       if ((rows as any[]).length > 0) {
@@ -42,12 +46,12 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
       const [result] = await fastify.mysql.query(
         "INSERT INTO users (email, password) VALUES (?, ?)",
-        [email, hashedPassword]
+        [email, hashedPassword],
       );
 
       return reply.status(201).send({
         message: "User registered successfully",
-        userId: (result as any).insertId
+        userId: (result as any).insertId,
       });
     } catch (error) {
       fastify.log.error(error);
@@ -59,13 +63,15 @@ export default async function authRoutes(fastify: FastifyInstance) {
     const { email, password } = request.body;
 
     if (!email || !password) {
-      return reply.status(400).send({ error: "Email and password are required" });
+      return reply
+        .status(400)
+        .send({ error: "Email and password are required" });
     }
 
     try {
       const [rows] = await fastify.mysql.query(
         "SELECT id, email, password FROM users WHERE email = ?",
-        [email]
+        [email],
       );
 
       const users = rows as { id: number; email: string; password: string }[];
@@ -83,7 +89,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
       const token = fastify.jwt.sign(
         { id: user.id, email: user.email },
-        { expiresIn: "7d" }
+        { expiresIn: "7d" },
       );
 
       reply.setCookie("token", token, {
@@ -91,15 +97,16 @@ export default async function authRoutes(fastify: FastifyInstance) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24 * 7
+        maxAge: 60 * 60 * 24 * 7,
       });
 
       return {
         message: "Login successful",
+        token: token,
         user: {
           id: user.id,
-          email: user.email
-        }
+          email: user.email,
+        },
       };
     } catch (error) {
       fastify.log.error(error);
@@ -119,9 +126,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
       return {
         user: {
           id: request.user.id,
-          email: request.user.email
-        }
+          email: request.user.email,
+        },
       };
-    }
+    },
   );
 }

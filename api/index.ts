@@ -13,27 +13,39 @@ dotenv.config();
 const fastify = Fastify({ logger: true });
 
 fastify.register(cors, {
-
-  origin: ["http://localhost:5173", "http://localhost:3000", "http://localhost:5174"],
-  
-  credentials: true 
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:5174",
+  ],
+  credentials: true,
 });
 
 fastify.register(mysql, {
   promise: true,
-  connectionString: process.env.MYSQL_CONNECTION_STRING
+  connectionString: process.env.MYSQL_CONNECTION_STRING,
 });
 
 fastify.register(cookie);
 
 fastify.register(jwt, {
-  secret: process.env.JWT_SECRET || "supersecret"
+  secret: process.env.JWT_SECRET || "supersecret",
+  verify: {
+    extractToken: (request) => {
+      return (
+        request.cookies.token ||
+        request.headers.authorization?.replace("Bearer ", "")
+      );
+    },
+  },
 });
 
 fastify.register(authPlugin);
 
-fastify.register(authRoutes, { prefix: "/auth" });
-fastify.register(linksRoutes);
+fastify.after(() => {
+  fastify.register(authRoutes, { prefix: "/auth" });
+  fastify.register(linksRoutes);
+});
 
 fastify.get("/status", async (_request, reply) => {
   try {
@@ -41,7 +53,7 @@ fastify.get("/status", async (_request, reply) => {
     return {
       status: "ok",
       db: "connected",
-      time: (rows as any[])[0].now
+      time: (rows as any[])[0].now,
     };
   } catch (error) {
     fastify.log.error(error);
@@ -49,7 +61,7 @@ fastify.get("/status", async (_request, reply) => {
   }
 });
 
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.PORT || 8080);
 
 fastify.listen({ port, host: "0.0.0.0" }, function (err, address) {
   if (err) {
