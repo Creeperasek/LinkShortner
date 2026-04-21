@@ -13,7 +13,7 @@ type SlugParams = {
 type CustomSlugParams = {
   customSlug?: string;
 };
-
+const linkCache = new Map<string, string>();
 export default async function linksRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: CreateLinkBody }>(
     "/links",
@@ -187,7 +187,7 @@ export default async function linksRoutes(fastify: FastifyInstance) {
         if ((result as any).affectedRows === 0) {
           return reply.status(404).send({ error: "Link not found" });
         }
-
+      linkCache.delete(slug);
         return { message: "Link deleted successfully" };
       } catch (error) {
         fastify.log.error(error);
@@ -196,46 +196,59 @@ export default async function linksRoutes(fastify: FastifyInstance) {
     }
   );
 
-  fastify.get<{ Params: SlugParams }>("/r/:slug", async (request, reply) => {
-    const { slug } = request.params;
+ fastify.get<{ Params: SlugParams }>("/r/:slug", async (request, reply) => {
+  const { slug } = request.params;
 
-    try {
-      const [rows] = await fastify.mysql.query(
-        `SELECT original_url, is_active, expires_at
-         FROM links
-         WHERE slug = ?`,
-        [slug]
-      );
+  try {
+    if (linkCache.has(slug)) {
+      fastify.log.info(`Cache hit: ${slug}`);
 
-      const results = rows as {
-        original_url: string;
-        is_active: number;
-        expires_at: string | null;
-      }[];
-
-      if (results.length === 0) {
-        return reply.status(404).send({ error: "Link not found" });
-      }
-
-      const link = results[0];
-
-      if (link.is_active === 0) {
-        return reply.status(410).send({ error: "Link is inactive" });
-      }
-
-      if (link.expires_at && new Date(link.expires_at) < new Date()) {
-        return reply.status(410).send({ error: "Link has expired" });
-      }
-
-      await fastify.mysql.query(
+      fastify.mysql.query(
         "UPDATE links SET click_count = click_count + 1 WHERE slug = ?",
         [slug]
       );
 
-      return reply.redirect(link.original_url);
-    } catch (error) {
-      fastify.log.error(error);
-      return reply.status(500).send({ error: "Database query failed" });
+      return reply.redirect(linkCache.get(slug)!);
     }
-  });
+
+    const [rows] = await fastify.mysql.query(
+      `SELECT original_url, is_active, expires_at
+       FROM links
+       WHERE slug = ?`,
+      [slug]
+    );
+
+    const results = rows as {
+      original_url: string;
+      is_active: number;
+      expires_at: string | null;
+    }[];
+
+    if (results.length === 0) {
+      return reply.status(404).send({ error: "Link not found" });
+    }
+    
+    const link = results[0];
+
+    if (link.is_active === 0) {
+      return reply.status(410).send({ error: "Link is inactive" });
+    }
+
+    if (link.expires_at && new Date(link.expires_at) < new Date()) {
+      return reply.status(410).send({ error: "Link has expired" });
+    }
+
+    linkCache.set(slug, link.original_url);
+
+    await fastify.mysql.query(
+      "UPDATE links SET click_count = click_count + 1 WHERE slug = ?",
+      [slug]
+    );
+
+    return reply.redirect(link.original_url);
+  } catch (error) {
+    fastify.log.error(error);
+    return reply.status(500).send({ error: "Database query failed" });
+  }
+});
 }
