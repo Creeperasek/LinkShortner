@@ -3,7 +3,7 @@ import { cookies, headers } from 'next/headers';
 
 const API_URL = process.env.API_URL || 'http://localhost:8080';
 
-export async function DELETE(
+export async function GET(
   _request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
@@ -24,22 +24,23 @@ export async function DELETE(
   const { slug } = await params;
 
   try {
-    const response = await fetch(`${API_URL}/links/${slug}`, {
-      method: 'DELETE',
+    const response = await fetch(`${API_URL}/links/${slug}/history`, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cookie': `token=${token}`
       },
     });
 
     const data = await response.json();
     if (!response.ok) {
-      return NextResponse.json({ message: data.error || 'Failed to delete link' }, { status: response.status });
+      return NextResponse.json({ message: data.error || 'Failed to fetch history' }, { status: response.status });
     }
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Delete link error:', error);
+    console.error('Fetch history error:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

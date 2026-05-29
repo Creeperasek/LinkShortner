@@ -17,12 +17,13 @@ import {
   IconButton,
   Alert,
   CircularProgress,
-  Divider,
   Grid,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import LinkChart from "@/src/components/LinkChart";
 
 interface LinkData {
   id: number;
@@ -43,6 +44,7 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [selectedLink, setSelectedLink] = useState<{ slug: string; title: string } | null>(null);
 
   const fetchLinks = useCallback(async () => {
     setLoading(true);
@@ -112,6 +114,7 @@ export default function UserDashboard() {
       if (response.ok) {
         setSuccess("Link deleted successfully.");
         fetchLinks();
+        if (selectedLink?.slug === slug) setSelectedLink(null);
       } else {
         const data = await response.json();
         setError(data.message || "Failed to delete link");
@@ -137,6 +140,14 @@ export default function UserDashboard() {
     navigator.clipboard.writeText(shortUrl);
     setSuccess("Short URL copied to clipboard!");
     setTimeout(() => setSuccess(""), 3000);
+  };
+
+  const handleToggleStats = (slug: string, title: string) => {
+    if (selectedLink?.slug === slug) {
+      setSelectedLink(null);
+    } else {
+      setSelectedLink({ slug, title });
+    }
   };
 
   return (
@@ -269,6 +280,14 @@ export default function UserDashboard() {
                   <TableCell align="right">
                     <IconButton
                       size="small"
+                      title="View stats"
+                      onClick={() => handleToggleStats(link.slug, link.slug)}
+                      color={selectedLink?.slug === link.slug ? "primary" : "default"}
+                    >
+                      <BarChartIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
                       title="Copy short link"
                       onClick={() => copyToClipboard(link.slug)}
                     >
@@ -289,6 +308,12 @@ export default function UserDashboard() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {selectedLink && (
+        <Box sx={{ mt: 4 }}>
+          <LinkChart slug={selectedLink.slug} title={selectedLink.title} />
+        </Box>
+      )}
     </Container>
   );
 }

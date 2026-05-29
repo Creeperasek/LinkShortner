@@ -8,8 +8,8 @@ export async function createSession(userId: string) {
     const cookieStore = await cookies();
     cookieStore.set('session', session, {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
         path: '/',
         expires,
     });

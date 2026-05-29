@@ -10,23 +10,27 @@ import linksRoutes from "./routes/links";
 
 dotenv.config();
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: true, trustProxy: true });
 
 fastify.register(cors, {
   origin: [
     "http://localhost:5173",
     "http://localhost:3000",
     "http://localhost:5174",
+    "https://gm.3492357.xyz",
+    "https://gm-api.3492357.xyz" 
   ],
   credentials: true,
 });
-
 fastify.register(mysql, {
   promise: true,
   connectionString: process.env.MYSQL_CONNECTION_STRING,
 });
 
-fastify.register(cookie);
+fastify.register(cookie, {
+  secret: process.env.JWT_SECRET || "supersecret", 
+  parseOptions: {}
+});
 
 fastify.register(jwt, {
   secret: process.env.JWT_SECRET || "supersecret",

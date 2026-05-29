@@ -94,8 +94,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
       reply.setCookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });

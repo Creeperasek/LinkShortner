@@ -1,14 +1,14 @@
 import RedirectTimer from "@/src/components/redirectTimer";
 import { redirect } from "next/navigation";
 
-const API_URL = process.env.BASE_URL || "http://localhost:8080";
+const API_URL = process.env.BASE_URL || "https://gm-api.3492357.xyz";
 
 export default async function SlugPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const { slug } = await params; 
 
   return (
     <div style={{ textAlign: "center", marginTop: "100px" }}>

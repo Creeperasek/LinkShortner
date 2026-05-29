@@ -38,8 +38,8 @@ export async function POST(request: Request) {
     const session = await encrypt({ userId: data.user.id.toString(), expires });
     nextResponse.cookies.set("session", session, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       path: "/",
       expires,
     });
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
     if (data.token) {
       nextResponse.cookies.set("token", data.token, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
